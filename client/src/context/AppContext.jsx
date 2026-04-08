@@ -1,35 +1,35 @@
-import { createContext,useEffect,useState} from "react";
-import {jobsData, initialOfferLetters} from '../assets/assets'
+import { createContext, useEffect, useState } from "react";
+import { jobsData, initialOfferLetters } from '../assets/assets'
 import axios from 'axios'
 
-export const AppContext= createContext()
+export const AppContext = createContext()
 
-export const AppContextProvider=(props)=>{
-    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+export const AppContextProvider = (props) => {
+    const backendUrl = https://campus-portal-backend-89wk.onrender.com'
 
     const [searchFilter, setSearchFilter] = useState({
         title: '',
         location: ''
     })
-    
-     const [isSearched, setIsSearched] = useState(false)
-     const [jobs, setJobs] = useState([])
-     const [showRecruiterLogin, setShowRecruiterLogin] = useState(false)
-     
-     const [companyToken, setCompanyToken] = useState(null)
-     const [companyData, setCompanyData] = useState(null)
 
-     // Feature States
-     const [notices, setNotices] = useState([])
-     const [companies, setCompanies] = useState([])
-     const [offerLetters, setOfferLetters] = useState([])
-     const [students, setStudents] = useState([])
-     const [studentRecords, setStudentRecords] = useState([])
-     const [queries, setQueries] = useState([])
+    const [isSearched, setIsSearched] = useState(false)
+    const [jobs, setJobs] = useState([])
+    const [showRecruiterLogin, setShowRecruiterLogin] = useState(false)
 
-     const [applications, setApplications] = useState([])
+    const [companyToken, setCompanyToken] = useState(null)
+    const [companyData, setCompanyData] = useState(null)
 
-     // Fetch mock data (stuff not in DB yet)
+    // Feature States
+    const [notices, setNotices] = useState([])
+    const [companies, setCompanies] = useState([])
+    const [offerLetters, setOfferLetters] = useState([])
+    const [students, setStudents] = useState([])
+    const [studentRecords, setStudentRecords] = useState([])
+    const [queries, setQueries] = useState([])
+
+    const [applications, setApplications] = useState([])
+
+    // Fetch mock data (stuff not in DB yet)
     const fetchJobs = async () => {
         setOfferLetters(initialOfferLetters)
     }
@@ -65,7 +65,7 @@ export const AppContextProvider=(props)=>{
         fetchBackendData()
     }, [])
 
-    const value={
+    const value = {
         backendUrl, fetchBackendData,
         setSearchFilter, searchFilter,
         isSearched, setIsSearched,
