@@ -10,7 +10,13 @@ const app = express();
 // Middlewares
 // app.use(cors());
 app.use(cors({
-    origin: ["https://campus-portal-lemon.vercel.app", "http://localhost:5173", "http://localhost:5174"],
+    origin: (origin, callback) => {
+        if (!origin || origin.startsWith('http://localhost') || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
