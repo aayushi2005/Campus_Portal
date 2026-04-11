@@ -3,23 +3,52 @@ import ForumQuery from '../models/ForumQuery.js';
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
 import NoDuesRequest from '../models/NoDuesRequest.js';
+import StudentRecord from '../models/StudentRecord.js';
 
-// Get Current User Profile (creates if doesn't exist via Clerk Sync)
+// Get Current User Profile
 export const getProfile = async (req, res) => {
     try {
         const { userId } = req.auth; 
         let user = await User.findOne({ userId });
-        
-        if (!user) {
-            user = await User.create({
-                userId,
-                name: "Student",
-                email: "student@example.com",
-                image: ""
-            });
-        }
         res.json({ success: true, user });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+// Sync Clerk Verified User to DB with Master Ledger Auto-Population
+export const syncUser = async (req, res) => {
+    try {
+        const { userId } = req.auth;
+        const { name, email, image } = req.body;
+
+        // Extract Roll Number dynamically: "200521014@ietlucknow.ac.in" -> "200521014"
+        const rollNumber = email.split('@')[0].toUpperCase();
+
+        // Check if student exists in Master Ledger
+        const ledgerRecord = await StudentRecord.findOne({ rollNumber });
+
+        let branch = '';
+        if(ledgerRecord) {
+            branch = ledgerRecord.branch;
+        }
+
+        // Upsert securely saves profile (creates if missing, updates if exists)
+        const user = await User.findOneAndUpdate(
+            { userId },
+            { 
+                userId, 
+                name, 
+                email, 
+                image, 
+                rollNumber,
+                branch
+            },
+            { new: true, upsert: true }
+        );
+
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 }
 
 // Student Submits a Doubt

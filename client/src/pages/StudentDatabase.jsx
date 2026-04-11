@@ -193,12 +193,18 @@ const StudentDatabase = () => {
 
             <div className='glass-panel p-6 rounded-3xl mb-8 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 shadow-sm border border-gray-100'>
                 <div>
-                    <h2 className='text-2xl font-bold text-gray-800 tracking-tight'>
+                    <h2 className='text-2xl font-bold text-gray-800 tracking-tight flex items-center gap-3'>
                         {activeTab === 'registered' && 'Student Directory'}
                         {activeTab === 'ledger' && 'Official Batch Ledger'}
                         {activeTab === 'placement_status' && 'Offer Letter Matcher'}
                     </h2>
-                    <p className='text-gray-500 text-sm mt-1'>
+                    {activeTab === 'registered' && studentRecords.length > 0 && (
+                        <div className="mt-3 flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-700 w-fit shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            {students.length} / {studentRecords.length} Master Ledger Students Registered
+                        </div>
+                    )}
+                    <p className='text-gray-500 text-sm mt-3'>
                         {activeTab === 'registered' && 'Manage registered candidates and enforce strict disciplinary actions.'}
                         {activeTab === 'ledger' && 'Upload official CSVs and track the entire enrolled branch.'}
                         {activeTab === 'placement_status' && 'Cross-reference master ledger to track students pending offer letter uploads.'}

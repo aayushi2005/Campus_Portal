@@ -22,16 +22,20 @@ import StudentDoubts from './pages/StudentDoubts'
 import NoDues from './pages/NoDues'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import axios from 'axios'
+import { useAuth } from '@clerk/react'
 
 import 'quill/dist/quill.snow.css'
 
 const App = () => {
-  const { showRecruiterLogin } = useContext(AppContext)
+  const { showRecruiterLogin, backendUrl } = useContext(AppContext)
   const { user, isLoaded, isSignedIn } = useUser()
+  const { getToken } = useAuth()
   const { signOut } = useClerk()
   const navigate = useNavigate()
   const location = useLocation()
   const [restrictedUser, setRestrictedUser] = useState(false)
+  const [synced, setSynced] = useState(false)
 
   // Enforce College Email Domain Restriction (EXCEPT for Alumni routing directly to No Dues!)
   useEffect(() => {
@@ -50,6 +54,22 @@ const App = () => {
                   setRestrictedUser(false);
                   navigate('/');
               }, 4000)
+          } else if (!synced) {
+              // Valid College Student - Sync Authentication Securely!
+              const performSync = async () => {
+                  try {
+                      const token = await getToken();
+                      await axios.post(`${backendUrl}/api/student/sync`, {
+                          name: user.fullName,
+                          email: email,
+                          image: user.imageUrl
+                      }, { headers: { Authorization: `Bearer ${token}` } });
+                      setSynced(true);
+                  } catch (error) {
+                      console.error("Auth Sync Failure:", error);
+                  }
+              }
+              performSync();
           }
       }
   }, [isLoaded, isSignedIn, user, signOut, navigate, location.pathname])
