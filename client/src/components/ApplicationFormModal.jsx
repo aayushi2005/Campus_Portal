@@ -104,7 +104,7 @@ const ApplicationFormModal = ({ isOpen, onClose, job }) => {
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Roll Number *</label>
                 <input 
@@ -135,7 +135,7 @@ const ApplicationFormModal = ({ isOpen, onClose, job }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Branch *</label>
                 <select 

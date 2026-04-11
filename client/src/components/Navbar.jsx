@@ -13,10 +13,10 @@ const Navbar = () => {
     const navigate = useNavigate()
     const { setShowRecruiterLogin } = useContext(AppContext)
 
-    // Check if current user is an Alumni (lacks the college email domain)
     const isAlumni = user?.primaryEmailAddress?.emailAddress && !user.primaryEmailAddress.emailAddress.endsWith('@ietlucknow.ac.in');
 
     const [scrolled, setScrolled] = useState(false)
+    const [showMobileLogin, setShowMobileLogin] = useState(false)
 
     useEffect(() => {
         const handleScroll = () => {
@@ -35,7 +35,7 @@ const Navbar = () => {
         >
             <div className='container px-4 2xl:px-20 mx-auto flex justify-between items-center py-4'>
                 <div onClick={() => navigate('/')} className='flex items-center gap-3 cursor-pointer group'>
-                    <img className='w-10 sm:w-12 group-hover:scale-105 transition-transform mix-blend-multiply' src={assets.iet_logo_2} alt="IET Logo" />
+                    <img className='w-10 sm:w-12 group-hover:scale-105 transition-transform mix-blend-multiply' src={assets.iet_logo} alt="IET Logo" />
                     <h1 className='text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight'>
                         IET Lucknow
                         <span className="block text-xs font-semibold text-blue-600 uppercase tracking-widest mt-0.5">Placement Portal</span>
@@ -44,7 +44,7 @@ const Navbar = () => {
 
                 {
                     user
-                        ? <div className='flex items-center gap-4 sm:gap-6'>
+                        ? <div className='flex items-center gap-2 sm:gap-6'>
                             {!isAlumni && (
                                 <>
                                     <Link to={'/doubts'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
@@ -73,16 +73,42 @@ const Navbar = () => {
                             <UserButton afterSignOutUrl="/" />
                         </div>
                         :
-                        <div className='flex items-center gap-4 max-sm:text-xs'>
-                            <button onClick={e => setShowRecruiterLogin(true)} className='text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors'>
-                                Coordinator Login
-                            </button>
-                            <button onClick={e => navigate('/no-dues')} className='btn-primary flex items-center justify-center py-2 px-4 text-xs sm:text-sm rounded-full bg-slate-800 text-white shadow hover:bg-slate-700 transition-colors'>
-                                Alumni Login
-                            </button>
-                            <button onClick={e => openSignIn()} className='btn-primary flex items-center gap-2 py-2 px-5 sm:px-7 text-sm rounded-full shadow-md hover:shadow-lg'>
-                                <LogIn size={16} /> Student Login
-                            </button>
+                        <div className='flex items-center shrink-0'>
+                            {/* Desktop View */}
+                            <div className='hidden sm:flex items-center gap-4'>
+                                <button onClick={e => setShowRecruiterLogin(true)} className='text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors'>
+                                    Coordinator Login
+                                </button>
+                                <button onClick={e => navigate('/no-dues')} className='btn-primary flex items-center justify-center py-2 px-4 text-sm rounded-full bg-slate-800 text-white shadow hover:bg-slate-700 transition-colors whitespace-nowrap'>
+                                    Alumni Login
+                                </button>
+                                <button onClick={e => openSignIn()} className='btn-primary flex items-center gap-2 py-2 px-7 text-sm rounded-full shadow-md hover:shadow-lg whitespace-nowrap'>
+                                    <LogIn size={16} /> Student Login
+                                </button>
+                            </div>
+
+                            {/* Mobile View Dropdown */}
+                            <div className='sm:hidden relative'>
+                                <button
+                                    onClick={() => setShowMobileLogin(!showMobileLogin)}
+                                    className='btn-primary flex items-center gap-1.5 py-1.5 px-4 text-[12px] rounded-full shadow-md'
+                                >
+                                    <LogIn size={14} /> Options
+                                </button>
+                                {showMobileLogin && (
+                                    <div className='absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden flex flex-col z-50 text-left font-medium text-gray-700'>
+                                        <button onClick={() => { openSignIn(); setShowMobileLogin(false); }} className='flex items-center gap-2 px-4 py-3 hover:bg-indigo-50 hover:text-indigo-600 w-full text-left'>
+                                            Student Login
+                                        </button>
+                                        <button onClick={() => { navigate('/no-dues'); setShowMobileLogin(false); }} className='flex items-center gap-2 px-4 py-3 hover:bg-indigo-50 hover:text-indigo-600 border-t border-gray-50 w-full text-left'>
+                                            Alumni Login
+                                        </button>
+                                        <button onClick={() => { setShowRecruiterLogin(true); setShowMobileLogin(false); }} className='flex items-center gap-2 px-4 py-3 hover:bg-indigo-50 hover:text-indigo-600 border-t border-gray-50 w-full text-left'>
+                                            Coordinator Login
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                 }
             </div>

@@ -325,7 +325,7 @@ const PlacementRecords = () => {
                                     </button>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-1">Student Name</label>
                                         <input required type="text" className="glass-input w-full p-3" value={newPlacement.name} onChange={e => setNewPlacement({...newPlacement, name: e.target.value})} placeholder="Full Name" />
@@ -336,7 +336,7 @@ const PlacementRecords = () => {
                                     </div>
                                 </div>
                                 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-1">Branch</label>
                                         <input required type="text" className="glass-input w-full p-3" value={newPlacement.branch} onChange={e => setNewPlacement({...newPlacement, branch: e.target.value})} placeholder="e.g. CSE, IT" />
@@ -347,7 +347,7 @@ const PlacementRecords = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-1">{newPlacement.type === 'Higher Studies' ? 'University / Institute' : 'Company'}</label>
                                         <input required type="text" className="glass-input w-full p-3" value={newPlacement.company} onChange={e => setNewPlacement({...newPlacement, company: e.target.value})} placeholder={newPlacement.type === 'Higher Studies' ? 'e.g. IIT Delhi' : 'Company Name'} />

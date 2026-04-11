@@ -4,40 +4,41 @@ import { assets } from '../assets/assets'
 
 const students = [
   {
-    name: "Aman Verma",
-    company: "Microsoft",
-    package: "42 LPA",
-    image: assets.profile_img,
-  },
-  {
-    name: "Priya Sharma",
+    name: "Aditi Kesarwani",
     company: "Amazon",
-    package: "38 LPA",
-    image: assets.profile_img,
+    package: "50 LPA",
+    image: assets.user_img,
   },
   {
-    name: "Rahul Singh",
-    company: "Adobe",
-    package: "35 LPA",
-    image: assets.profile_img,
+    name: "Kinjal Gupta",
+    company: "Hummingwave",
+    package: "13 LPA",
+    image: assets.user_img,
   },
   {
-    name: "Sneha Gupta",
-    company: "Samsung",
-    package: "32 LPA",
-    image: assets.profile_img,
+    name: "Deepali Sayana",
+    company: "BEL",
+    package: "12.5 LPA",
+    image: assets.user_img,
+  },
+  {
+    name: "Khushi Rawat",
+    company: "HUL",
+    package: "11 LPA",
+    image: assets.user_img,
   }
+
 ]
 
 const AppDownload = () => {
   return (
     <div className="px-4 2xl:px-20 my-24 lg:my-32 relative">
-      
+
       {/* Background Decorative elements */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob"></div>
       <div className="absolute top-10 right-10 w-32 h-32 bg-indigo-400 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-2000"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -48,12 +49,12 @@ const AppDownload = () => {
 
         {/* Heading */}
         <div className="text-center mb-12 relative z-10">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-              Top <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Placements</span> 🎓
-            </h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium">
-              Celebrating our exceptional students who secured elite offers from industry-leading organizations.
-            </p>
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            Top <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Placements</span> 🎓
+          </h2>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium">
+            Celebrating our exceptional students who secured elite offers from industry-leading organizations.
+          </p>
         </div>
 
         {/* Cards */}

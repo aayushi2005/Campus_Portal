@@ -1,5 +1,6 @@
 import logo from "./logo.svg";
 import iet_logo_2 from "./iet_logo_2.svg";
+import iet_logo from "./iet_logo.svg";
 import IET_Lucknow from "./IET_Lucknow.svg";
 import hero_logo from "./hero_logo.svg";
 import tcs_logo from "./tcs_logo.svg";
@@ -37,10 +38,13 @@ import lock_icon from './lock_icon.svg'
 import samsung_logo from './samsung_logo.png'
 import adobe_logo from './adobe_logo.png'
 import amazon_logo from './amazon_logo.png'
+import user_img from './user_img.svg'
 
 export const assets = {
     logo,
+    iet_logo,
     iet_logo_2,
+    user_img,
     IET_Lucknow,
     hero_logo,
     tcs_logo,
