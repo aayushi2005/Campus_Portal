@@ -6,7 +6,8 @@ import {
     getQueries, resolveQuery, deleteQuery,
     getJobs, createJob, toggleJobVisibility, deleteJob,
     getApplications, updateApplicationStatus,
-    getPlacements, createPlacement, deletePlacement
+    getPlacements, createPlacement, deletePlacement,
+    getNoDuesRequests, approveNoDuesRequest, rejectNoDuesRequest
 } from '../controllers/adminController.js';
 import { requireAdminAuth } from '../middlewares/clerkAuth.js';
 
@@ -53,5 +54,10 @@ router.put('/applications/:id/status', updateApplicationStatus);
 router.get('/placements', getPlacements);
 router.post('/placements', createPlacement);
 router.delete('/placements/:id', deletePlacement);
+
+// No Dues
+router.get('/no-dues', getNoDuesRequests);
+router.put('/no-dues/:id/approve', approveNoDuesRequest);
+router.put('/no-dues/:id/reject', rejectNoDuesRequest);
 
 export default router;

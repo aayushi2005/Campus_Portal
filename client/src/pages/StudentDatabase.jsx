@@ -63,8 +63,9 @@ const StudentDatabase = () => {
 
     // Placement Ledger Data Processing
     const placementData = studentRecords.map(record => {
-        const hasUploaded = offerLetters.some(o => o.rollNumber === record.rollNumber)
-        return { ...record, hasUploaded }
+        const offer = offerLetters.find(o => o.rollNumber === record.rollNumber) || null
+        if (offer && !offer.type) offer.type = 'Job'; // legacy fallback
+        return { ...record, offer }
     })
 
     const filteredPlacementData = placementData.filter(s => {
@@ -72,14 +73,15 @@ const StudentDatabase = () => {
         const matchesBranch = branchFilter === 'All' || s.branch === branchFilter
         const matchesYear = yearFilter === 'All' || s.year === yearFilter
         const matchesStatus = placementStatusFilter === 'All' || 
-            (placementStatusFilter === 'Uploaded' && s.hasUploaded) || 
-            (placementStatusFilter === 'Pending' && !s.hasUploaded)
+            (placementStatusFilter === 'Job' && s.offer?.type === 'Job') || 
+            (placementStatusFilter === 'Higher Studies' && s.offer?.type === 'Higher Studies') || 
+            (placementStatusFilter === 'Pending' && !s.offer)
         
         return matchesSearch && matchesBranch && matchesYear && matchesStatus
     })
 
     const totalStudents = filteredPlacementData.length;
-    const uploadedCount = filteredPlacementData.filter(s => s.hasUploaded).length;
+    const uploadedCount = filteredPlacementData.filter(s => s.offer).length;
     const pendingCount = totalStudents - uploadedCount;
 
     const handleFileUpload = async (e) => {
@@ -119,8 +121,8 @@ const StudentDatabase = () => {
             const degreeIdx = headers.findIndex(h => h.includes('degree'))
             const yearIdx = headers.findIndex(h => h.includes('year'))
 
-            if (rollIdx === -1 || nameIdx === -1 || branchIdx === -1) {
-                return toast.error("CSV Headers missing. Required: Roll, Name, Branch. Found: " + headers.join(',').substring(0, 50));
+            if (rollIdx === -1 || nameIdx === -1 || branchIdx === -1 || yearIdx === -1) {
+                return toast.error("CSV Headers missing. Required: Roll, Name, Branch, Year. Found: " + headers.join(',').substring(0, 50));
             }
 
             const records = rows.slice(1).map(row => {
@@ -141,14 +143,14 @@ const StudentDatabase = () => {
                     rollNumber: rRoll,
                     name: rName,
                     email: emailIdx !== -1 ? cols[emailIdx] : '',
-                    branch: cols[branchIdx] || '',
-                    degree: (degreeIdx !== -1 && cols[degreeIdx]) ? cols[degreeIdx] : 'B.Tech',
-                    year: (yearIdx !== -1 && cols[yearIdx]) ? cols[yearIdx] : '2025'
+                    branch: cols[branchIdx] ? cols[branchIdx].trim() : '',
+                    degree: (degreeIdx !== -1 && cols[degreeIdx]) ? cols[degreeIdx].trim() : 'B.Tech',
+                    year: cols[yearIdx] ? cols[yearIdx].trim() : ''
                 }
-            }).filter(r => r.rollNumber && r.name && r.branch)
+            }).filter(r => r.rollNumber && r.name && r.branch && r.year)
 
             if (records.length === 0) {
-                return toast.error("No valid records found in the CSV. Make sure each row has Roll, Name, and Branch.");
+                return toast.error("No valid records found in the CSV. Make sure each row has Roll, Name, Branch, and strictly includes the Year.");
             }
 
             await axios.post(`${backendUrl}/api/admin/student-records/bulk`, { records })
@@ -262,10 +264,11 @@ const StudentDatabase = () => {
                             <select 
                                 value={placementStatusFilter}
                                 onChange={(e) => setPlacementStatusFilter(e.target.value)}
-                                className="glass-input px-4 py-2.5 text-sm font-medium min-w-[130px]"
+                                className="glass-input px-4 py-2.5 text-sm font-medium min-w-[150px]"
                             >
                                 <option value="All">All Statuses</option>
-                                <option value="Uploaded">📝 Uploaded</option>
+                                <option value="Job">💼 Job Offers</option>
+                                <option value="Higher Studies">🎓 Higher Studies</option>
                                 <option value="Pending">⌛ Pending</option>
                             </select>
                         </div>
@@ -401,7 +404,7 @@ const StudentDatabase = () => {
                             )})}
 
                             {activeTab === 'placement_status' && filteredPlacementData.map((record, index) => (
-                                <tr key={index} className={`transition-colors ${record.hasUploaded ? 'hover:bg-green-50/10' : 'bg-red-50/10 hover:bg-red-50/30'}`}>
+                                <tr key={index} className={`transition-colors ${record.offer ? 'hover:bg-green-50/10' : 'bg-red-50/10 hover:bg-red-50/30'}`}>
                                     <td className='py-3 px-6 font-semibold text-gray-600'>{record.rollNumber}</td>
                                     <td className='py-3 px-6 font-bold text-gray-800 break-words'>{record.name}</td>
                                     <td className='py-3 px-6'>
@@ -411,8 +414,12 @@ const StudentDatabase = () => {
                                         </div>
                                     </td>
                                     <td className='py-3 px-6 text-center'>
-                                        {record.hasUploaded ? 
-                                            <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200'>✅ Uploaded</span> :
+                                        {record.offer ? 
+                                            (record.offer.type === 'Higher Studies' ? 
+                                                <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-600 border border-purple-100'>🎓 Higher Ed</span> :
+                                                <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200'>✅ Placed</span>
+                                            )
+                                            :
                                             <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200'>⌛ Pending</span>
                                         }
                                     </td>

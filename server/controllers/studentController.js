@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import ForumQuery from '../models/ForumQuery.js';
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
+import NoDuesRequest from '../models/NoDuesRequest.js';
 
 // Get Current User Profile (creates if doesn't exist via Clerk Sync)
 export const getProfile = async (req, res) => {
@@ -76,5 +77,35 @@ export const getMyApplications = async (req, res) => {
         const { userId } = req.auth;
         const applications = await Application.find({ userId }).sort({ date: -1 });
         res.json({ success: true, applications });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+// Submit No Dues Form
+export const submitNoDues = async (req, res) => {
+    try {
+        const { userId } = req.auth;
+        const { name, rollNumber, branch, year, company, package: pkg, letterUrl, type } = req.body;
+        
+        // Ensure student doesn't have a pending request already (optional but good practice)
+        const existing = await NoDuesRequest.findOne({ userId, status: 'Pending' });
+        if (existing) {
+            return res.status(400).json({ success: false, message: "You already have a pending No Dues request." });
+        }
+
+        const newRequest = new NoDuesRequest({
+            userId, name, rollNumber, branch, year, company, package: pkg, letterUrl, type, date: Date.now()
+        });
+
+        await newRequest.save();
+        res.json({ success: true, message: "No Dues Request submitted successfully! Please wait for Coordinator approval." });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+// Get No Dues Status
+export const getNoDuesStatus = async (req, res) => {
+    try {
+        const { userId } = req.auth;
+        const request = await NoDuesRequest.findOne({ userId }).sort({ date: -1 });
+        res.json({ success: true, request });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 }

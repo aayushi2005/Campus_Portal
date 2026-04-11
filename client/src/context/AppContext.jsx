@@ -5,7 +5,7 @@ import axios from 'axios'
 export const AppContext = createContext()
 
 export const AppContextProvider = (props) => {
-    const backendUrl = https://campus-portal-backend-89wk.onrender.com'
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
     const [searchFilter, setSearchFilter] = useState({
         title: '',
@@ -26,6 +26,7 @@ export const AppContextProvider = (props) => {
     const [students, setStudents] = useState([])
     const [studentRecords, setStudentRecords] = useState([])
     const [queries, setQueries] = useState([])
+    const [noDuesRequests, setNoDuesRequests] = useState([])
 
     const [applications, setApplications] = useState([])
 
@@ -37,7 +38,7 @@ export const AppContextProvider = (props) => {
     // Fetch Database data
     const fetchBackendData = async () => {
         try {
-            const [noticesRes, companiesRes, studentsRes, recordsRes, queriesRes, jobsRes, appsRes, placementsRes] = await Promise.all([
+            const [noticesRes, companiesRes, studentsRes, recordsRes, queriesRes, jobsRes, appsRes, placementsRes, noDuesRes] = await Promise.all([
                 axios.get(`${backendUrl}/api/admin/notices`),
                 axios.get(`${backendUrl}/api/admin/companies`),
                 axios.get(`${backendUrl}/api/admin/students`),
@@ -45,7 +46,8 @@ export const AppContextProvider = (props) => {
                 axios.get(`${backendUrl}/api/admin/queries`),
                 axios.get(`${backendUrl}/api/admin/jobs`),
                 axios.get(`${backendUrl}/api/admin/applications`),
-                axios.get(`${backendUrl}/api/admin/placements`)
+                axios.get(`${backendUrl}/api/admin/placements`),
+                axios.get(`${backendUrl}/api/admin/no-dues`)
             ])
             setNotices(noticesRes.data.notices || [])
             setCompanies(companiesRes.data.companies || [])
@@ -55,6 +57,7 @@ export const AppContextProvider = (props) => {
             setJobs(jobsRes.data.jobs || [])
             setApplications(appsRes.data.applications || [])
             setOfferLetters(placementsRes.data.placements || [])
+            setNoDuesRequests(noDuesRes.data.requests || [])
         } catch (error) {
             console.error("Backend DB Error:", error)
         }
@@ -79,7 +82,8 @@ export const AppContextProvider = (props) => {
         students, setStudents,
         studentRecords, setStudentRecords,
         queries, setQueries,
-        applications, setApplications
+        applications, setApplications,
+        noDuesRequests, setNoDuesRequests
     }
 
     return <AppContext.Provider value={value}>

@@ -91,7 +91,7 @@ const Dashboard = () => {
 
                         <NavLink className={({ isActive }) => ` flex items-center px-6 py-3.5 gap-3 w-full transition-all border-l-4 ${isActive ? 'bg-indigo-50/50 text-indigo-700 border-indigo-600 font-bold' : 'border-transparent hover:bg-gray-50 hover:text-gray-900'}`} to={'/dashboard/placement-records'}>
                             <FileCheck size={20} className='opacity-80' />
-                            <p className='max-sm:hidden'>Offer Letters</p>
+                            <p className='max-sm:hidden'>Placement Records</p>
                         </NavLink>
 
                         <NavLink className={({ isActive }) => ` flex items-center px-6 py-3.5 gap-3 w-full transition-all border-l-4 ${isActive ? 'bg-indigo-50/50 text-indigo-700 border-indigo-600 font-bold' : 'border-transparent hover:bg-gray-50 hover:text-gray-900'}`} to={'/dashboard/student-database'}>

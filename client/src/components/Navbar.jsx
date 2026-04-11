@@ -13,6 +13,9 @@ const Navbar = () => {
     const navigate = useNavigate()
     const { setShowRecruiterLogin } = useContext(AppContext)
 
+    // Check if current user is an Alumni (lacks the college email domain)
+    const isAlumni = user?.primaryEmailAddress?.emailAddress && !user.primaryEmailAddress.emailAddress.endsWith('@ietlucknow.ac.in');
+
     const [scrolled, setScrolled] = useState(false)
 
     useEffect(() => {
@@ -42,25 +45,40 @@ const Navbar = () => {
                 {
                     user
                         ? <div className='flex items-center gap-4 sm:gap-6'>
-                            <Link to={'/doubts'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
-                                <HelpCircle size={16} /> <span className="hidden xl:inline">Doubts Forum</span>
+                            {!isAlumni && (
+                                <>
+                                    <Link to={'/doubts'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                                        <HelpCircle size={16} /> <span className="hidden xl:inline">Doubts Forum</span>
+                                    </Link>
+                                    <div className="w-px h-4 bg-gray-300 hidden sm:block"></div>
+                                </>
+                            )}
+                            <Link to={'/no-dues'} className="flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors">
+                                <BriefcaseBusiness size={16} /> <span className="hidden xl:inline">No Dues Form</span>
                             </Link>
                             <div className="w-px h-4 bg-gray-300 hidden sm:block"></div>
-                            <Link to={'/applications'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
-                                <BriefcaseBusiness size={16} /> <span className="hidden sm:inline">Applied Jobs</span>
-                            </Link>
-                            <div className="w-px h-4 bg-gray-300"></div>
-                            <Link to={'/profile'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
-                                <UserRound size={16} /> <span className="hidden sm:inline">Profile</span>
-                            </Link>
-                            <div className="w-px h-4 bg-gray-300 absolute -left-[9999px] hidden"></div>
-                            <p className='max-sm:hidden text-sm font-medium text-gray-800'>Hi, {user.firstName}</p>
+                            {!isAlumni && (
+                                <>
+                                    <Link to={'/applications'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                                        <BriefcaseBusiness size={16} /> <span className="hidden sm:inline">Applied Jobs</span>
+                                    </Link>
+                                    <div className="w-px h-4 bg-gray-300"></div>
+                                    <Link to={'/profile'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                                        <UserRound size={16} /> <span className="hidden sm:inline">Profile</span>
+                                    </Link>
+                                    <div className="w-px h-4 bg-gray-300 absolute -left-[9999px] hidden"></div>
+                                </>
+                            )}
+                            <p className='max-sm:hidden text-sm font-medium text-gray-800 ml-2'>Hi, {user.firstName}</p>
                             <UserButton afterSignOutUrl="/" />
                         </div>
                         :
                         <div className='flex items-center gap-4 max-sm:text-xs'>
                             <button onClick={e => setShowRecruiterLogin(true)} className='text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors'>
                                 Coordinator Login
+                            </button>
+                            <button onClick={e => navigate('/no-dues')} className='btn-primary flex items-center justify-center py-2 px-4 text-xs sm:text-sm rounded-full bg-slate-800 text-white shadow hover:bg-slate-700 transition-colors'>
+                                Alumni Login
                             </button>
                             <button onClick={e => openSignIn()} className='btn-primary flex items-center gap-2 py-2 px-5 sm:px-7 text-sm rounded-full shadow-md hover:shadow-lg'>
                                 <LogIn size={16} /> Student Login

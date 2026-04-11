@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProfile, submitDoubt, getMyDoubts, applyForJob, getMyApplications } from '../controllers/studentController.js';
+import { getProfile, submitDoubt, getMyDoubts, applyForJob, getMyApplications, submitNoDues, getNoDuesStatus } from '../controllers/studentController.js';
 import { requireStudentAuth } from '../middlewares/clerkAuth.js';
 
 const router = express.Router();
@@ -11,5 +11,7 @@ router.post('/doubts', submitDoubt);
 router.get('/doubts', getMyDoubts);
 router.post('/apply', applyForJob);
 router.get('/applications', getMyApplications);
+router.post('/no-dues', submitNoDues);
+router.get('/no-dues/status', getNoDuesStatus);
 
 export default router;

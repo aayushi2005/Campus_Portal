@@ -8,6 +8,7 @@ const fileSchema = new mongoose.Schema({
     company: { type: String, required: true },
     package: { type: String, required: true },
     letterUrl: { type: String, default: "" },
+    type: { type: String, enum: ['Job', 'Higher Studies'], default: 'Job' },
     date: { type: Number, required: true }
 });
 

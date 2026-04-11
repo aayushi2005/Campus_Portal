@@ -4,6 +4,7 @@ import { AppContext } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Lock, Mail, User, ArrowRight, ShieldCheck } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 const RecruiterLogin = () => {
 
@@ -18,7 +19,16 @@ const RecruiterLogin = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault()
         
-        // Mock Login Flow
+        // Strict Hardcoded Authentication for Coordinator
+        const ADMIN_EMAIL = 'coordinator@ietlucknow.ac.in'
+        const ADMIN_PASSWORD = 'admin' // you can change this anytime!
+        
+        if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+            toast.error("Invalid Coordinator Credentials!")
+            return;
+        }
+
+        // Proceed if credentials match
         setCompanyData({ name: "IET Lucknow Placement Cell", image: assets.iet_logo_2, email })
         setCompanyToken("mock-token-123")
         setShowRecruiterLogin(false)

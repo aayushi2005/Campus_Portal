@@ -6,6 +6,7 @@ import ForumQuery from '../models/ForumQuery.js';
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
 import StudentRecord from '../models/StudentRecord.js';
+import NoDuesRequest from '../models/NoDuesRequest.js';
 
 // --- NOTICES ---
 export const getNotices = async (req, res) => {
@@ -211,5 +212,53 @@ export const deletePlacement = async (req, res) => {
     try {
         await Placement.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: "Placement Record deleted!" });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+// --- NO DUES REQUESTS ---
+export const getNoDuesRequests = async (req, res) => {
+    try {
+        const requests = await NoDuesRequest.find().sort({ date: -1 });
+        res.json({ success: true, requests });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+export const approveNoDuesRequest = async (req, res) => {
+    try {
+        const request = await NoDuesRequest.findById(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+        if (request.status !== 'Pending') return res.status(400).json({ success: false, message: "Request already processed" });
+
+        request.status = 'Approved';
+        await request.save();
+
+        // Add to Placement archive
+        const newPlacement = new Placement({
+            name: request.name,
+            rollNumber: request.rollNumber,
+            branch: request.branch,
+            year: request.year,
+            company: request.company,
+            package: request.package,
+            letterUrl: request.letterUrl,
+            type: request.type,
+            date: Date.now()
+        });
+        await newPlacement.save();
+
+        res.json({ success: true, message: "Request Approved and added to Outgoing records!" });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
+export const rejectNoDuesRequest = async (req, res) => {
+    try {
+        const request = await NoDuesRequest.findById(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+        if (request.status !== 'Pending') return res.status(400).json({ success: false, message: "Request already processed" });
+
+        request.status = 'Rejected';
+        await request.save();
+
+        res.json({ success: true, message: "Request Rejected!" });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 }
