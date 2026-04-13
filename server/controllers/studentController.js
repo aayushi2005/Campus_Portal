@@ -14,6 +14,21 @@ export const getProfile = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 }
 
+// Update User Profile
+export const updateProfile = async (req, res) => {
+    try {
+        const { userId } = req.auth;
+        const { name, phone, degree, branch, passingYear } = req.body;
+        
+        const user = await User.findOneAndUpdate(
+            { userId },
+            { name, phone, degree, branch, passingYear },
+            { new: true }
+        );
+        res.json({ success: true, user, message: "Profile completely updated!" });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+}
+
 // Sync Clerk Verified User to DB with Master Ledger Auto-Population
 export const syncUser = async (req, res) => {
     try {
@@ -27,8 +42,19 @@ export const syncUser = async (req, res) => {
         const ledgerRecord = await StudentRecord.findOne({ rollNumber });
 
         let branch = '';
+        let finalName = name;
+
         if(ledgerRecord) {
             branch = ledgerRecord.branch;
+            // Prefer official ledger name if Clerk profile misses a name
+            if (!finalName || finalName.trim() === '') {
+                finalName = ledgerRecord.name;
+            }
+        }
+
+        // Ultimate fallback if name is still empty
+        if (!finalName || finalName.trim() === '') {
+            finalName = `Student ${rollNumber}`;
         }
 
         // Upsert securely saves profile (creates if missing, updates if exists)
@@ -36,7 +62,7 @@ export const syncUser = async (req, res) => {
             { userId },
             { 
                 userId, 
-                name, 
+                name: finalName, 
                 email, 
                 image, 
                 rollNumber,

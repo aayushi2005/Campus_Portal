@@ -210,7 +210,7 @@ const PlacementRecords = () => {
                                                     if (!record.letterUrl || record.letterUrl === '#') {
                                                         toast.info("No offer letter link provided for this record.")
                                                     } else {
-                                                        setViewLetterUrl(record.letterUrl)
+                                                        window.open(record.letterUrl, '_blank')
                                                     }
                                                 }}
                                                 className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors shadow-sm"
@@ -366,25 +366,6 @@ const PlacementRecords = () => {
 
                                 <button type="submit" className="btn-primary w-full py-3 mt-4 rounded-xl shadow-lg">Save Record</button>
                             </form>
-                        </motion.div>
-                    </div>
-                )}
-                {viewLetterUrl && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewLetterUrl(null)} className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" />
-                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="glass-panel w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl relative z-10 p-2 flex flex-col">
-                            <div className="flex justify-between items-center px-4 pt-2 pb-2">
-                                <h3 className="font-bold text-gray-800">Document Viewer</h3>
-                                <div className="flex gap-2">
-                                    <a href={viewLetterUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-semibold flex items-center gap-2">
-                                        Open Externally
-                                    </a>
-                                    <button onClick={() => setViewLetterUrl(null)} className="p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg"><X size={20}/></button>
-                                </div>
-                            </div>
-                            <div className="flex-grow rounded-2xl overflow-hidden bg-gray-50/50">
-                                <iframe src={viewLetterUrl} className="w-full h-full border-0" title="Offer Letter" sandbox="allow-same-origin allow-scripts allow-popups" />
-                            </div>
                         </motion.div>
                     </div>
                 )}

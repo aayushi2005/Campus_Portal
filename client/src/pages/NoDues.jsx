@@ -6,7 +6,8 @@ import { toast } from 'react-toastify'
 import { useUser, RedirectToSignIn } from '@clerk/react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { CheckCircle, Clock, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, XCircle, Download } from 'lucide-react'
+import { assets } from '../assets/assets'
 
 const NoDues = () => {
     const { backendUrl } = useContext(AppContext)
@@ -82,7 +83,7 @@ const NoDues = () => {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="glass-panel w-full max-w-2xl bg-white shadow-xl rounded-3xl p-8 border border-gray-100 min-h-[400px] flex flex-col justify-center"
+                    className="glass-panel w-full max-w-4xl bg-white shadow-xl rounded-3xl p-8 border border-gray-100 min-h-[400px] flex flex-col justify-center print:shadow-none print:border-none print:bg-transparent print:p-0"
                 >
                     {loadingData ? (
                         <div className="flex items-center justify-center h-full">
@@ -99,17 +100,54 @@ const NoDues = () => {
                                     <p className="text-gray-500 mb-8 max-w-md mx-auto">Your placement or higher studies outcome is currently under review by the placement coordinator. Keep an eye out for updates!</p>
                                 </>
                             ) : (
-                                <>
-                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle className="text-green-500 w-10 h-10" />
-                                    </motion.div>
-                                    <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight mb-3">No Dues Cleared!</h2>
-                                    <p className="text-gray-500 mb-8 max-w-md mx-auto">Your placement information has been successfully verified. You have completed the No Dues process for the placement unit.</p>
-                                </>
+                                <div className="flex flex-col items-center justify-center">
+                                    {/* Screen view message */}
+                                    <div className="print:hidden text-center mb-10 w-full max-w-2xl mx-auto">
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                            <CheckCircle className="text-green-500 w-10 h-10" />
+                                        </motion.div>
+                                        <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight mb-3">No Dues Cleared!</h2>
+                                        <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                                            Your placement information has been successfully verified. Please download this receipt and submit it to the Head of Department to clear your No Dues.
+                                        </p>
+                                        <div className="flex gap-4 justify-center">
+                                            <button onClick={() => window.print()} className="btn-primary flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transition-all">
+                                                <Download size={20} /> Download Receipt
+                                            </button>
+                                            <button onClick={() => window.location.href = '/'} className="bg-white border border-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold shadow-sm hover:bg-gray-50 transition-all">
+                                                Return Home
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Certificate Preview (Screen + Print) */}
+                                    <div className="relative w-full max-w-[800px] aspect-[1/1.414] shadow-2xl border border-gray-200 bg-white print:shadow-none print:border-none print:w-[100vw] print:max-w-none print:h-[100vh] print:-m-8 mx-auto overflow-hidden rounded-xl print:rounded-none">
+                                        {/* Background Image */}
+                                        <img src={assets.no_dues} alt="No Dues Certificate" className="absolute top-0 left-0 w-full h-full object-contain print:object-cover z-0" />
+                                        
+                                        {/* Overlaid Data - positioned to match the blank lines on the certificate */}
+                                        {/* We use inline styles for precise percentages */}
+                                        <div className="absolute z-10 w-full h-full top-0 left-0 text-[1.1rem] font-semibold text-gray-800 pointer-events-none uppercase tracking-wide print:text-[14px]">
+                                            {/* Batch / Year */}
+                                            <div className="absolute top-[14.5%] left-[54%]">{existingRequest.year}</div>
+                                            
+                                            {/* Name */}
+                                            <div className="absolute top-[18.2%] left-[26%]">{existingRequest.name}</div>
+                                            
+                                            {/* Roll No */}
+                                            <div className="absolute top-[18.2%] left-[64%]">{existingRequest.rollNumber}</div>
+                                            
+                                            {/* Branch */}
+                                            <div className="absolute top-[33.2%] left-[26%]">{existingRequest.branch}</div>
+                                            
+                                            {/* Company & Package (As extra info at the top right since it's a placement clearance) */}
+                                            <div className="absolute top-[2%] right-[5%] text-sm text-indigo-800 bg-white/80 px-3 py-1 rounded border border-indigo-100">
+                                                Placement: {existingRequest.company} ({existingRequest.package || existingRequest.type})
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
-                            <button onClick={() => window.location.href = '/'} className="btn-primary px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transition-all">
-                                Return Home
-                            </button>
                         </div>
                     ) : (
                         <>
@@ -156,7 +194,18 @@ const NoDues = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-2">Branch</label>
-                                        <input required type="text" className="glass-input w-full p-3 bg-gray-50/50" value={formData.branch} onChange={e => setFormData({...formData, branch: e.target.value})} placeholder="e.g. CSE, IT" />
+                                        <select required className="glass-input w-full p-3 bg-white/50 appearance-none text-sm" value={formData.branch} onChange={e => setFormData({...formData, branch: e.target.value})}>
+                                            <option value="" disabled>Select your branch</option>
+                                            <option>Computer Science and Engineering-Regular</option>
+                                            <option>Computer Science and Engineering-Self Finance</option>
+                                            <option>Computer Science and Engineering-AI</option>
+                                            <option>Information Technology</option>
+                                            <option>Electronics and Communication</option>
+                                            <option>Electrical Engineering</option>
+                                            <option>Mechanical Engineering</option>
+                                            <option>Civil Engineering</option>
+                                            <option>Chemical Engineering</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-2">Graduation Year</label>

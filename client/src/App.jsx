@@ -59,12 +59,18 @@ const App = () => {
               const performSync = async () => {
                   try {
                       const token = await getToken();
-                      await axios.post(`${backendUrl}/api/student/sync`, {
+                      const res = await axios.post(`${backendUrl}/api/student/sync`, {
                           name: user.fullName,
                           email: email,
                           image: user.imageUrl
                       }, { headers: { Authorization: `Bearer ${token}` } });
+                      
                       setSynced(true);
+                      
+                      const dbUser = res.data.user;
+                      if (!dbUser || !dbUser.name || !dbUser.branch || !dbUser.phone || !dbUser.passingYear) {
+                          navigate('/profile');
+                      }
                   } catch (error) {
                       console.error("Auth Sync Failure:", error);
                   }
@@ -72,7 +78,7 @@ const App = () => {
               performSync();
           }
       }
-  }, [isLoaded, isSignedIn, user, signOut, navigate, location.pathname])
+  }, [isLoaded, isSignedIn, user, signOut, navigate, location.pathname, synced, backendUrl, getToken])
 
   if (restrictedUser) {
       return (

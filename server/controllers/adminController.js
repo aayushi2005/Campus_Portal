@@ -98,7 +98,18 @@ export const bulkUploadStudentRecords = async (req, res) => {
                 if (err.code !== 11000) throw err;
             });
             
-        res.json({ success: true, message: "Bulk upload executed" });
+        // Retroactively sync branch info to any previously registered users missing it
+        if (records && records.length > 0) {
+            const bulkUserOps = records.map(record => ({
+                updateOne: {
+                    filter: { rollNumber: record.rollNumber },
+                    update: { $set: { branch: record.branch, name: record.name } }
+                }
+            }));
+            await User.bulkWrite(bulkUserOps, { ordered: false }).catch(err => console.error("Sync partial error:", err));
+        }
+            
+        res.json({ success: true, message: "Bulk upload executed & registered users synced!" });
     } catch (error) { 
         res.status(500).json({ success: false, message: "Server error during bulk upload" }); 
     }

@@ -7,6 +7,9 @@ const fileSchema = new mongoose.Schema({
     image: { type: String, required: true },
     rollNumber: { type: String, default: "" },
     branch: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    degree: { type: String, default: "B.Tech" },
+    passingYear: { type: String, default: "" },
     isBlacklisted: { type: Boolean, default: false },
     blacklistReason: { type: String, default: "" }
 }, { timestamps: true });

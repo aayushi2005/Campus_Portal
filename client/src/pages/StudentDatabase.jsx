@@ -46,37 +46,40 @@ const StudentDatabase = () => {
     }
 
     const filteredStudents = students.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.rollNumber.includes(search)
+        const matchesSearch = (s.name || '').toLowerCase().includes(search.toLowerCase()) || (s.rollNumber || '').includes(search)
         const matchesBranch = branchFilter === 'All' || s.branch === branchFilter
-        const matchesStatus = statusFilter === 'All' || 
-            (statusFilter === 'Active' && !s.isBlacklisted) || 
+        const matchesStatus = statusFilter === 'All' ||
+            (statusFilter === 'Active' && !s.isBlacklisted) ||
             (statusFilter === 'Blacklisted' && s.isBlacklisted)
-        
+
         return matchesSearch && matchesBranch && matchesStatus
     })
 
-    const branches = activeTab === 'registered' 
-        ? ['All', ...new Set(students.map(s => s.branch))] 
+    const branches = activeTab === 'registered'
+        ? ['All', ...new Set(students.map(s => s.branch))]
         : ['All', ...new Set(studentRecords.map(s => s.branch))]
 
     const years = ['All', ...new Set(studentRecords.filter(s => s.year).map(s => s.year))]
 
     // Placement Ledger Data Processing
     const placementData = studentRecords.map(record => {
-        const offer = offerLetters.find(o => o.rollNumber === record.rollNumber) || null
-        if (offer && !offer.type) offer.type = 'Job'; // legacy fallback
+        let offer = offerLetters.find(o => o.rollNumber === record.rollNumber) || null
+        if (offer) {
+            offer = { ...offer }
+            if (!offer.type) offer.type = 'Job'; // legacy fallback
+        }
         return { ...record, offer }
     })
 
     const filteredPlacementData = placementData.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.rollNumber.includes(search)
+        const matchesSearch = (s.name || '').toLowerCase().includes(search.toLowerCase()) || (s.rollNumber || '').includes(search)
         const matchesBranch = branchFilter === 'All' || s.branch === branchFilter
         const matchesYear = yearFilter === 'All' || s.year === yearFilter
-        const matchesStatus = placementStatusFilter === 'All' || 
-            (placementStatusFilter === 'Job' && s.offer?.type === 'Job') || 
-            (placementStatusFilter === 'Higher Studies' && s.offer?.type === 'Higher Studies') || 
+        const matchesStatus = placementStatusFilter === 'All' ||
+            (placementStatusFilter === 'Job' && s.offer?.type === 'Job') ||
+            (placementStatusFilter === 'Higher Studies' && s.offer?.type === 'Higher Studies') ||
             (placementStatusFilter === 'Pending' && !s.offer)
-        
+
         return matchesSearch && matchesBranch && matchesYear && matchesStatus
     })
 
@@ -113,7 +116,7 @@ const StudentDatabase = () => {
             };
 
             const headers = parseCsvRow(rows[0]).map(h => h.toLowerCase())
-            
+
             const rollIdx = headers.findIndex(h => h.includes('roll'))
             const nameIdx = headers.findIndex(h => h.includes('name'))
             const emailIdx = headers.findIndex(h => h.includes('email'))
@@ -129,7 +132,7 @@ const StudentDatabase = () => {
                 const cols = parseCsvRow(row);
                 let rRoll = cols[rollIdx] ? cols[rollIdx].trim() : '';
                 let rName = cols[nameIdx] ? cols[nameIdx].trim() : '';
-                
+
                 // Fallback for corrupted CSVs where Roll Number was pasted into the Name column (e.g. "22043... Abhay Kumar")
                 if (!rRoll && rName) {
                     const match = rName.match(/^(\d+|\d\.\d+E\+\d+)\s+(.+)$/i);
@@ -160,30 +163,30 @@ const StudentDatabase = () => {
             toast.error(err.response?.data?.message || "Failed to parse or upload CSV: " + err.message)
             console.error(err)
         }
-        
+
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className='container mx-auto p-2 sm:p-4'
         >
             <div className="flex border-b border-gray-200 mb-6 gap-6">
-                <button 
+                <button
                     onClick={() => setActiveTab('registered')}
                     className={`flex items-center gap-2 pb-3 font-semibold transition-colors ${activeTab === 'registered' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <Users size={18} /> Registered Accounts
                 </button>
-                <button 
+                <button
                     onClick={() => setActiveTab('ledger')}
                     className={`flex items-center gap-2 pb-3 font-semibold transition-colors ${activeTab === 'ledger' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <FileSpreadsheet size={18} /> Master Ledger
                 </button>
-                <button 
+                <button
                     onClick={() => setActiveTab('placement_status')}
                     className={`flex items-center gap-2 pb-3 font-semibold transition-colors ${activeTab === 'placement_status' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
@@ -210,25 +213,25 @@ const StudentDatabase = () => {
                         {activeTab === 'placement_status' && 'Cross-reference master ledger to track students pending offer letter uploads.'}
                     </p>
                 </div>
-                
+
                 <div className='flex flex-wrap items-center gap-3 w-full xl:w-auto'>
                     <div className="relative flex-grow sm:flex-grow-0 sm:w-56">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search size={16} className="text-gray-400" />
                         </div>
-                        <input 
+                        <input
                             placeholder="Search Name or Roll No..."
                             className="glass-input pl-9 pr-4 py-2.5 text-sm w-full font-medium"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    
+
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Filter size={14} className="text-gray-400" />
                         </div>
-                        <select 
+                        <select
                             value={branchFilter}
                             onChange={(e) => setBranchFilter(e.target.value)}
                             className="glass-input pl-9 pr-4 py-2.5 text-sm font-medium min-w-[130px]"
@@ -240,7 +243,7 @@ const StudentDatabase = () => {
                     </div>
 
                     {activeTab === 'placement_status' && (
-                        <select 
+                        <select
                             value={yearFilter}
                             onChange={(e) => setYearFilter(e.target.value)}
                             className="glass-input px-4 py-2.5 text-sm font-medium min-w-[110px]"
@@ -253,7 +256,7 @@ const StudentDatabase = () => {
 
                     {activeTab === 'registered' && (
                         <div className="relative">
-                            <select 
+                            <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                                 className="glass-input px-4 py-2.5 text-sm font-medium min-w-[130px]"
@@ -264,10 +267,10 @@ const StudentDatabase = () => {
                             </select>
                         </div>
                     )}
-                    
+
                     {activeTab === 'placement_status' && (
                         <div className="relative">
-                            <select 
+                            <select
                                 value={placementStatusFilter}
                                 onChange={(e) => setPlacementStatusFilter(e.target.value)}
                                 className="glass-input px-4 py-2.5 text-sm font-medium min-w-[150px]"
@@ -282,7 +285,7 @@ const StudentDatabase = () => {
 
                     {activeTab === 'ledger' && (
                         <div className="relative flex gap-2">
-                            <button 
+                            <button
                                 onClick={handleClearLedger}
                                 className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl shadow-sm font-semibold text-sm text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors border border-gray-200 bg-white cursor-pointer"
                                 title="Clear Entire Ledger"
@@ -290,7 +293,7 @@ const StudentDatabase = () => {
                                 <Trash2 size={16} /> Clear
                             </button>
                             <input type="file" accept=".csv" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                            <button 
+                            <button
                                 onClick={() => fileInputRef.current?.click()}
                                 className="btn-primary flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl shadow-md"
                             >
@@ -360,14 +363,13 @@ const StudentDatabase = () => {
                                     </td>
                                     <td className='py-3 px-6 text-center'>
                                         <div className="flex items-center justify-center">
-                                            <button 
+                                            <button
                                                 onClick={() => handleToggleBlacklist(student._id)}
                                                 title={student.isBlacklisted ? "Lift Ban" : "Blacklist Student"}
-                                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${
-                                                    student.isBlacklisted 
-                                                    ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800' 
-                                                    : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
-                                                }`}
+                                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${student.isBlacklisted
+                                                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+                                                        : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
+                                                    }`}
                                             >
                                                 {student.isBlacklisted ? <UserCheck size={14} /> : <UserX size={14} />}
                                             </button>
@@ -376,38 +378,39 @@ const StudentDatabase = () => {
                                 </tr>
                             ))}
 
-                            {activeTab === 'ledger' && studentRecords.filter(s => 
-                                (s.name.toLowerCase().includes(search.toLowerCase()) || s.rollNumber.includes(search)) &&
+                            {activeTab === 'ledger' && studentRecords.filter(s =>
+                                ((s.name || '').toLowerCase().includes(search.toLowerCase()) || (s.rollNumber || '').includes(search)) &&
                                 (branchFilter === 'All' || s.branch === branchFilter)
                             ).map((record, index) => {
                                 const isRegistered = students.some(rs => rs.rollNumber === record.rollNumber);
                                 return (
-                                <tr key={index} className='hover:bg-blue-50/20 transition-colors'>
-                                    <td className='py-3 px-6 font-semibold text-gray-600'>{record.rollNumber}</td>
-                                    <td className='py-3 px-6 font-bold text-gray-800 break-words'>{record.name}</td>
-                                    <td className='py-3 px-6'>
-                                        <div className='flex flex-col'>
-                                            <span className="text-gray-700 font-semibold text-xs">{record.degree} - {record.branch}</span>
-                                            <span className="text-gray-400 text-xs text-left">Class of {record.year}</span>
-                                        </div>
-                                    </td>
-                                    <td className='py-3 px-6 text-center'>
-                                        <div className="flex items-center justify-center gap-3">
-                                            {isRegistered ? 
-                                                <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100'>Registered</span> :
-                                                <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200'>Unregistered</span>
-                                            }
-                                            <button 
-                                                onClick={() => handleDeleteLedgerRecord(record._id)}
-                                                title="Delete Ledger Record"
-                                                className="w-8 h-8 rounded-full flex items-center justify-center transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )})}
+                                    <tr key={index} className='hover:bg-blue-50/20 transition-colors'>
+                                        <td className='py-3 px-6 font-semibold text-gray-600'>{record.rollNumber}</td>
+                                        <td className='py-3 px-6 font-bold text-gray-800 break-words'>{record.name}</td>
+                                        <td className='py-3 px-6'>
+                                            <div className='flex flex-col'>
+                                                <span className="text-gray-700 font-semibold text-xs">{record.degree} - {record.branch}</span>
+                                                <span className="text-gray-400 text-xs text-left">Graduation Year {record.year}</span>
+                                            </div>
+                                        </td>
+                                        <td className='py-3 px-6 text-center'>
+                                            <div className="flex items-center justify-center gap-3">
+                                                {isRegistered ?
+                                                    <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100'>Registered</span> :
+                                                    <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200'>Unregistered</span>
+                                                }
+                                                <button
+                                                    onClick={() => handleDeleteLedgerRecord(record._id)}
+                                                    title="Delete Ledger Record"
+                                                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
 
                             {activeTab === 'placement_status' && filteredPlacementData.map((record, index) => (
                                 <tr key={index} className={`transition-colors ${record.offer ? 'hover:bg-green-50/10' : 'bg-red-50/10 hover:bg-red-50/30'}`}>
@@ -420,8 +423,8 @@ const StudentDatabase = () => {
                                         </div>
                                     </td>
                                     <td className='py-3 px-6 text-center'>
-                                        {record.offer ? 
-                                            (record.offer.type === 'Higher Studies' ? 
+                                        {record.offer ?
+                                            (record.offer.type === 'Higher Studies' ?
                                                 <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-600 border border-purple-100'>🎓 Higher Ed</span> :
                                                 <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200'>✅ Placed</span>
                                             )
