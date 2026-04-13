@@ -349,7 +349,18 @@ const PlacementRecords = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-1">Branch</label>
-                                        <input required type="text" className="glass-input w-full p-3" value={newPlacement.branch} onChange={e => setNewPlacement({...newPlacement, branch: e.target.value})} placeholder="e.g. CSE, IT" />
+                                        <select required className="glass-input w-full p-3 bg-white/50 appearance-none text-sm" value={newPlacement.branch} onChange={e => setNewPlacement({...newPlacement, branch: e.target.value})}>
+                                            <option value="" disabled>Select branch</option>
+                                            <option>Computer Science and Engineering-Regular</option>
+                                            <option>Computer Science and Engineering-Self Finance</option>
+                                            <option>Computer Science and Engineering-AI</option>
+                                            <option>Information Technology</option>
+                                            <option>Electronics and Communication</option>
+                                            <option>Electrical Engineering</option>
+                                            <option>Mechanical Engineering</option>
+                                            <option>Civil Engineering</option>
+                                            <option>Chemical Engineering</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="block text-gray-700 font-semibold mb-1">Graduation Year</label>
