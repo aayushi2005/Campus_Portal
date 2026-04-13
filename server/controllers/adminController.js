@@ -7,6 +7,7 @@ import Job from '../models/Job.js';
 import Application from '../models/Application.js';
 import StudentRecord from '../models/StudentRecord.js';
 import NoDuesRequest from '../models/NoDuesRequest.js';
+import { uploadToCloudinary } from '../config/cloudinary.js';
 
 // --- NOTICES ---
 export const getNotices = async (req, res) => {
@@ -213,9 +214,19 @@ export const getPlacements = async (req, res) => {
 
 export const createPlacement = async (req, res) => {
     try {
-        const newPlacement = new Placement({ ...req.body, date: Date.now() });
+        let letterUrl = req.body.letterUrl || "";
+        
+        if (req.file) {
+            try {
+                letterUrl = await uploadToCloudinary(req.file.buffer, 'placements');
+            } catch (err) {
+                return res.status(500).json({ success: false, message: "File upload failed", error: err.message });
+            }
+        }
+
+        const newPlacement = new Placement({ ...req.body, letterUrl, date: Date.now() });
         await newPlacement.save();
-        res.json({ success: true, message: "Placement Record added!" });
+        res.json({ success: true, message: "Placement Record added!", record: newPlacement });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 }
 

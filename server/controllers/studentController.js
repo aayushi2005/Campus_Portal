@@ -4,11 +4,12 @@ import Job from '../models/Job.js';
 import Application from '../models/Application.js';
 import NoDuesRequest from '../models/NoDuesRequest.js';
 import StudentRecord from '../models/StudentRecord.js';
+import { uploadToCloudinary } from '../config/cloudinary.js';
 
 // Get Current User Profile
 export const getProfile = async (req, res) => {
     try {
-        const { userId } = req.auth; 
+        const { userId } = req.auth;
         let user = await User.findOne({ userId });
         res.json({ success: true, user });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -19,7 +20,7 @@ export const updateProfile = async (req, res) => {
     try {
         const { userId } = req.auth;
         const { name, phone, degree, branch, passingYear } = req.body;
-        
+
         const user = await User.findOneAndUpdate(
             { userId },
             { name, phone, degree, branch, passingYear },
@@ -44,7 +45,7 @@ export const syncUser = async (req, res) => {
         let branch = '';
         let finalName = name;
 
-        if(ledgerRecord) {
+        if (ledgerRecord) {
             branch = ledgerRecord.branch;
             // Prefer official ledger name if Clerk profile misses a name
             if (!finalName || finalName.trim() === '') {
@@ -60,11 +61,11 @@ export const syncUser = async (req, res) => {
         // Upsert securely saves profile (creates if missing, updates if exists)
         const user = await User.findOneAndUpdate(
             { userId },
-            { 
-                userId, 
-                name: finalName, 
-                email, 
-                image, 
+            {
+                userId,
+                name: finalName,
+                email,
+                image,
                 rollNumber,
                 branch
             },
@@ -82,7 +83,7 @@ export const submitDoubt = async (req, res) => {
     try {
         const { userId } = req.auth;
         const { query } = req.body;
-        
+
         const user = await User.findOne({ userId });
 
         const newQuery = new ForumQuery({
@@ -109,7 +110,7 @@ export const applyForJob = async (req, res) => {
     try {
         const { userId } = req.auth;
         const { jobId, company, jobTitle, location, name, rollNumber, branch, year, resume } = req.body;
-        
+
         // Prevent duplicate applications
         const exists = await Application.findOne({ userId, jobId });
         if (exists) return res.status(400).json({ success: false, message: "Already applied!" });
@@ -139,12 +140,23 @@ export const getMyApplications = async (req, res) => {
 export const submitNoDues = async (req, res) => {
     try {
         const { userId } = req.auth;
-        const { name, rollNumber, branch, year, company, package: pkg, letterUrl, type } = req.body;
-        
+        const { name, rollNumber, branch, year, company, package: pkg, type } = req.body;
+
+        let letterUrl = req.body.letterUrl || "";
+
         // Ensure student doesn't have a pending request already (optional but good practice)
         const existing = await NoDuesRequest.findOne({ userId, status: 'Pending' });
         if (existing) {
             return res.status(400).json({ success: false, message: "You already have a pending No Dues request." });
+        }
+
+        // If a file is uploaded, upload it to Cloudinary
+        if (req.file) {
+            try {
+                letterUrl = await uploadToCloudinary(req.file.buffer, 'placements');
+            } catch (err) {
+                return res.status(500).json({ success: false, message: "File upload failed", error: err.message });
+            }
         }
 
         const newRequest = new NoDuesRequest({

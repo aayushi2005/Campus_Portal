@@ -1,6 +1,7 @@
 import express from 'express';
 import { getProfile, updateProfile, submitDoubt, getMyDoubts, applyForJob, getMyApplications, submitNoDues, getNoDuesStatus, syncUser } from '../controllers/studentController.js';
 import { requireStudentAuth } from '../middlewares/clerkAuth.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.post('/doubts', submitDoubt);
 router.get('/doubts', getMyDoubts);
 router.post('/apply', applyForJob);
 router.get('/applications', getMyApplications);
-router.post('/no-dues', submitNoDues);
+router.post('/no-dues', upload.single('letterPdf'), submitNoDues);
 router.get('/no-dues/status', getNoDuesStatus);
 
 export default router;

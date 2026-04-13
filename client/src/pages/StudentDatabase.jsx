@@ -367,8 +367,8 @@ const StudentDatabase = () => {
                                                 onClick={() => handleToggleBlacklist(student._id)}
                                                 title={student.isBlacklisted ? "Lift Ban" : "Blacklist Student"}
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${student.isBlacklisted
-                                                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
-                                                        : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
+                                                    ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+                                                    : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
                                                     }`}
                                             >
                                                 {student.isBlacklisted ? <UserCheck size={14} /> : <UserX size={14} />}

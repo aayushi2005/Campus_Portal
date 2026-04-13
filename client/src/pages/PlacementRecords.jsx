@@ -16,15 +16,25 @@ const PlacementRecords = () => {
 
     const [showAddModal, setShowAddModal] = useState(false)
     const [viewLetterUrl, setViewLetterUrl] = useState(null)
-    const [newPlacement, setNewPlacement] = useState({ name: '', rollNumber: '', branch: '', year: '', company: '', package: '', letterUrl: '', type: 'Job' })
+    const [newPlacement, setNewPlacement] = useState({ name: '', rollNumber: '', branch: '', year: '', company: '', package: '', letterPdf: null, type: 'Job' })
 
     const handleAddPlacement = async (e) => {
         e.preventDefault()
+        
+        const uploadData = new FormData();
+        Object.keys(newPlacement).forEach(key => {
+            if (newPlacement[key] !== null && newPlacement[key] !== undefined) {
+                uploadData.append(key, newPlacement[key]);
+            }
+        });
+
         try {
-            await axios.post(`${backendUrl}/api/admin/placements`, newPlacement)
+            await axios.post(`${backendUrl}/api/admin/placements`, uploadData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
             toast.success("Record Added!")
             setShowAddModal(false)
-            setNewPlacement({ name: '', rollNumber: '', branch: '', year: '', company: '', package: '', letterUrl: '', type: 'Job' })
+            setNewPlacement({ name: '', rollNumber: '', branch: '', year: '', company: '', package: '', letterPdf: null, type: 'Job' })
             fetchBackendData()
         } catch (error) {
             toast.error(error.message)
@@ -359,9 +369,9 @@ const PlacementRecords = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-700 font-semibold mb-1">Proof Document (PDF/Drive URL)</label>
-                                    <input type="text" className="glass-input w-full p-3" value={newPlacement.letterUrl} onChange={e => setNewPlacement({...newPlacement, letterUrl: e.target.value})} placeholder="Optional external URL" />
-                                    <p className="text-xs text-gray-400 mt-1">Provide an offer letter or admission letter link.</p>
+                                    <label className="block text-gray-700 font-semibold mb-1">Proof Document (PDF)</label>
+                                    <input type="file" accept="application/pdf" className="glass-input w-full p-3 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" onChange={e => setNewPlacement({...newPlacement, letterPdf: e.target.files[0]})} />
+                                    <p className="text-xs text-gray-400 mt-1">Provide a PDF copy of the offer or admission letter.</p>
                                 </div>
 
                                 <button type="submit" className="btn-primary w-full py-3 mt-4 rounded-xl shadow-lg">Save Record</button>

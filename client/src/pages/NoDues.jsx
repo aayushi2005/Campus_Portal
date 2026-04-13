@@ -23,7 +23,7 @@ const NoDues = () => {
         year: '',
         company: '',
         package: '',
-        letterUrl: '',
+        letterPdf: null,
         type: 'Job'
     })
 
@@ -57,10 +57,21 @@ const NoDues = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
+
+        const uploadData = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null && formData[key] !== undefined) {
+                uploadData.append(key, formData[key]);
+            }
+        });
+
         try {
             const token = await window.Clerk.session.getToken()
-            const response = await axios.post(`${backendUrl}/api/student/no-dues`, formData, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.post(`${backendUrl}/api/student/no-dues`, uploadData, {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data' 
+                }
             })
             if (response.data.success) {
                 toast.success(response.data.message)
@@ -114,7 +125,11 @@ const NoDues = () => {
                                             <button onClick={() => window.print()} className="btn-primary flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transition-all">
                                                 <Download size={20} /> Download Receipt
                                             </button>
-                                            <button onClick={() => window.location.href = '/'} className="bg-white border border-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold shadow-sm hover:bg-gray-50 transition-all">
+                                            <button onClick={async () => {
+                                                const { signOut } = window.Clerk;
+                                                await signOut();
+                                                window.location.href = '/';
+                                            }} className="bg-white border border-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold shadow-sm hover:bg-gray-50 transition-all">
                                                 Return Home
                                             </button>
                                         </div>
@@ -225,9 +240,9 @@ const NoDues = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-700 font-semibold mb-2 pb-1 border-t border-gray-100 pt-4 mt-2">Proof Document Link (Drive/Cloud PDF)</label>
-                                    <input required type="url" className="glass-input w-full p-3 bg-gray-50/50" value={formData.letterUrl} onChange={e => setFormData({...formData, letterUrl: e.target.value})} placeholder="https://..." />
-                                    <p className="text-xs text-gray-500 mt-2">* Please provide a publicly accessible link to your Offer Letter or Admission Letter.</p>
+                                    <label className="block text-gray-700 font-semibold mb-2 pb-1 border-t border-gray-100 pt-4 mt-2">Proof Document (Offer/Admission Letter PDF)</label>
+                                    <input required type="file" accept="application/pdf" className="glass-input w-full p-3 bg-gray-50/50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onChange={e => setFormData({...formData, letterPdf: e.target.files[0]})} />
+                                    <p className="text-xs text-gray-500 mt-2">* Please provide a PDF copy of your Offer Letter or Admission Letter.</p>
                                 </div>
 
                                 <div className="pt-4">

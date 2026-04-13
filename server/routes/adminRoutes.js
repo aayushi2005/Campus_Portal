@@ -10,6 +10,7 @@ import {
     getNoDuesRequests, approveNoDuesRequest, rejectNoDuesRequest
 } from '../controllers/adminController.js';
 import { requireAdminAuth } from '../middlewares/clerkAuth.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
@@ -52,7 +53,7 @@ router.put('/applications/:id/status', updateApplicationStatus);
 
 // Placement / Offer Letters
 router.get('/placements', getPlacements);
-router.post('/placements', createPlacement);
+router.post('/placements', upload.single('letterPdf'), createPlacement);
 router.delete('/placements/:id', deletePlacement);
 
 // No Dues
